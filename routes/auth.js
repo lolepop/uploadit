@@ -73,8 +73,7 @@ router.post("/login", (req, res) => {
         let passHash = u[0].hash;
 
         // verify hash of provided password against hash in db
-        let isHashSuccessful = await argon2.verify(passHash, pass, cfg.argon2cfg);
-        if (!isHashSuccessful)
+        if (!await argon2.verify(passHash, pass, cfg.argon2cfg))
             throw new Error();
 
         // create jwt token for user to receive and auth with
