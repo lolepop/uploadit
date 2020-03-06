@@ -7,4 +7,4 @@ CREATE TABLE IF NOT EXISTS users (
 );
 `
 
-module.exports = _ => dao.getInstance().executeUpdate(init).then(console.log).catch(console.error);
+module.exports = _ => dao.getInstance().executeUpdate(init).then(_ => console.log("Database initialised")).catch(console.error);

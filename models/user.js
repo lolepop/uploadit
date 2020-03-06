@@ -2,7 +2,7 @@ const dao = require("./dao");
 
 function get(username)
 {
-    return dao.getInstance().executeQuery("SELECT * FROM users WHERE username=$username", {
+    return dao.getInstance().executeQuery("SELECT * FROM users WHERE username=$username LIMIT 1", {
         $username: username
     });
 }

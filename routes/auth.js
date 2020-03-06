@@ -32,18 +32,22 @@ router.post("/register", (req, res) => {
     }
 
     // hash password with argon2 and add user to db
-    argon2.hash(pass, cfg.argon2cfg).then(passHash =>{
-        userModel.create(user, passHash).then(a => {
-            console.log(a);
+    argon2.hash(pass, cfg.argon2cfg).then(async passHash => {
+        try
+        {
+            console.log(await userModel.create(user, passHash));
             ret.success = true;
             ret.message = "Registration successful";
             return res.json(ret);
-        }).catch(a => {
-            console.error(a);
+        }
+        catch (err)
+        {
+            // assuming error for violation of pk { [Error: SQLITE_CONSTRAINT: UNIQUE constraint failed: users.username] errno: 19, code: 'SQLITE_CONSTRAINT' }
+            console.error(err);
             ret.success = false;
-            ret.message = "Registration failed";
+            ret.message = "Registration failed, user already exists";
             return res.json(ret);
-        });
+        }
     }).catch(err => {
         ret.success = false;
         ret.message = "Something went wrong...";
@@ -61,31 +65,37 @@ router.post("/login", (req, res) => {
 
     let ret = util.createResponseObj("success", "token");
 
-    if (user === "bruh" && pass === "bruh") // replace this shit and the secret key later lmao
-    {
+    // find user with entered username
+    userModel.get(user).then(async u => {
+        if (u.length !== 1)
+            throw new Error();
+
+        let passHash = u[0].hash;
+
+        // verify hash of provided password against hash in db
+        let isHashSuccessful = await argon2.verify(passHash, pass, cfg.argon2cfg);
+        if (!isHashSuccessful)
+            throw new Error();
+
+        // create jwt token for user to receive and auth with
         jwt.sign(
             { "user": user }, 
             keys.keys.private, 
             { algorithm: "RS256", expiresIn: cfg.jwtTokenTime }, 
             (err, token) => {
                 if (err)
-                {
-                    ret.success = false;
-                    token = err;
-                    return res.json(ret);   
-                }
+                    throw err;  
 
                 ret.success = true;
                 ret.token = token;
                 return res.json(ret);
             }
         );
-    }
-    else
-    {
+
+    }).catch(err => {
         ret.success = false;
         return res.json(ret);
-    }
+    });
 
 });
 
