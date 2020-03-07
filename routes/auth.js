@@ -10,13 +10,26 @@ const userModel = require("../models/user");
 
 const router = express.Router();
 
+// verify auth token and get user info
 router.get("/", util.verifyAuthToken, (req, res) => {
+	
+	let ret = util.createResponseObj("success", "user", "token");
+	
     if (res.locals.authenticated)
-        res.send(res.locals.decoded);
-    else
-        res.send("lol");
+	{
+		ret.success = true;
+		ret.token = req.header("authorization");
+		ret.user = res.locals.decoded.user;
+        res.send(ret);
+	}
+	else
+	{
+		ret.success = false;
+        res.send(ret);
+	}
 })
 
+// register account
 router.post("/register", (req, res) => {
     
     let user = req.body["username"];
@@ -58,12 +71,13 @@ router.post("/register", (req, res) => {
 
 });
 
+// login and return auth token
 router.post("/login", (req, res) => {
     
     let user = req.body["username"];
     let pass = req.body["password"];
 
-    let ret = util.createResponseObj("success", "token");
+    let ret = util.createResponseObj("success", "user", "token");
 
     // find user with entered username
     userModel.get(user).then(async u => {
@@ -87,6 +101,7 @@ router.post("/login", (req, res) => {
 
                 ret.success = true;
                 ret.token = token;
+				ret.user = user;
                 return res.json(ret);
             }
         );
