@@ -16,7 +16,7 @@ function getFromUploader(parent)
 
 function create(filename, original, parent=null)
 {
-    return dao.getInstance().executeUpdate("INSERT INTO files VALUES (NULL, $filename, $original, $parent)", {
+    return dao.getInstance().executeUpdate("INSERT INTO files VALUES (NULL, $filename, $original, strftime('%s','now'), $parent)", {
         $filename: filename,
         $original: original,
         $parent: parent
