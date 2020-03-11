@@ -22,6 +22,9 @@
                         :value="props.row.progress"
                         :show-value="true"
                     />
+                    <span v-else-if="props.row.status">
+                        <a :href="$store.state.apiEndpoint + props.row.message">Download</a>
+                    </span>
                     <span v-else>
                         {{ props.row.message }}
                     </span>

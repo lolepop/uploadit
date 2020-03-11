@@ -10,6 +10,7 @@ app.use(cors());
 
 app.use("/api/auth", require("./routes/auth"));
 app.use("/api/upload", require("./routes/upload"));
+app.use("/api/limits", require("./routes/limits"));
 app.use(`${cfg.downloadRoute}`, require("./routes/download"));
 
 (async _ => {

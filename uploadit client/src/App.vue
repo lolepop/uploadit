@@ -19,7 +19,7 @@
 </template>
 
 <script>
-// import axios from "axios";
+import axios from "axios";
 import Cookies from "js-cookie";
 
 import store from '@/store/index';
@@ -29,23 +29,20 @@ import authFetch from "@/libs/util";
 
 store.commit("setApiEndpoint", process.env.NODE_ENV === "development" ? "http://localhost:8000" : "");
 
+axios.get(`${store.state.apiEndpoint}/api/limits/`).then(res => {
+    store.commit("setLimits", res.data);
+    console.log(res.data.size, store.state.limits.size);
+});
+
 let jwtToken = Cookies.get("JWT");
 if (jwtToken)
 {
-    // axios({
-    //     method: "GET",
-    //     url: `${store.state.apiEndpoint}/api/auth/`,
-    //     headers: { Authorization: jwtToken }
-    // })
-
     authFetch.get(`${store.state.apiEndpoint}/api/auth/`).then(res => {
         if (res.data.success)
             store.commit("setLoginInfo", res.data.user);
         else
             Cookies.remove("JWT");
     });
-
-
 }
 
 // store.commit("setLoginInfo", "ajksdlkjasdlk");

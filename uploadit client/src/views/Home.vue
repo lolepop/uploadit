@@ -16,7 +16,6 @@
 </template>
 
 <script>
-// @ is an alias to /src
 import axios from "axios";
 
 import store from '@/store/index';
@@ -33,7 +32,6 @@ export default {
     },
     methods: {
         uploadFile() {
-            console.log(this.file);
             store.commit("addUploadQueue", {
                 name: this.file.name,
                 progress: 0,
@@ -44,17 +42,23 @@ export default {
 
             let currFileIndex = store.state.uploadQueue.length - 1;
 
+            // check local filesize against limits before sending
+            if (this.file.size > store.state.limits.size)
+            {
+                store.commit("mutateUploadQueue", { k: currFileIndex, v: { status: false, message: "File is too large" }});
+                return;
+            }
+
             let formData = new FormData();
             formData.append('file', this.file);
 
-            // add onUploadProgress bar later
             authFetch.post(
                 `${store.state.apiEndpoint}/api/upload/`,
                 { 
                     data: formData,
                     onUploadProgress: progressEvent => store.commit("mutateUploadQueue", { k: currFileIndex, v: { progress: progressEvent.loaded * 100 / progressEvent.total } }),
                     cancelToken: new CancelToken(c => store.commit("mutateUploadQueue", { k: currFileIndex, v: { cancel: c } }))
-                }, 
+                },
                 { "Content-Type": "multipart/form-data" }
             ).then(res => {
                 store.commit("mutateUploadQueue", { k: currFileIndex, v: { status: res.data.success, message: res.data.download }});

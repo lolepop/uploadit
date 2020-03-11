@@ -7,7 +7,8 @@ export default new Vuex.Store({
     state: {
         loginInfo: "",
         uploadQueue: [],
-        apiEndpoint: ""
+        apiEndpoint: "",
+        limits: {}
     },
     mutations: {
         setLoginInfo(state, loginInfo) {
@@ -17,7 +18,6 @@ export default new Vuex.Store({
             state.uploadQueue.push(item);
         },
         mutateUploadQueue(state, p) {
-            // console.log(p);
             for (let [k, v] of Object.entries(p.v))
                 state.uploadQueue[p.k][k] = v;
         },
@@ -26,6 +26,9 @@ export default new Vuex.Store({
         },
         setApiEndpoint(state, apiEndpoint) {
             state.apiEndpoint = apiEndpoint;
+        },
+        setLimits(state, limits) {
+            state.limits = limits;
         }
     },
     actions: {

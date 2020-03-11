@@ -8,8 +8,8 @@ module.exports = {
     downloadRoute: "/d/",
     multerSettings: {
         uploadDir: `${__dirname}/upload/`,
-        maxSize: 100 * 1024 * 1024
-        // maxSize: 1
+        // maxSize: 100 * 1024 * 1024
+        maxSize: 1
     },
     argon2cfg: { // optimised for i7 7500U laptop cpu (about 0.8s/hash)
         type: argon2.argon2id,
