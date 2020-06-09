@@ -9,14 +9,13 @@ const router = express.Router();
 
 router.use(express.static(cfg.multerSettings.uploadDir));
 
-router.get("/:filename", (req, res, next) => {
+router.get("/:filename", async (req, res, next) => {
     let reqFile = req.params.filename;
 
-    fileModel.get(reqFile).then(f => {
-        if (f.length !== 1)
-            return res.status(404).send("File not found");
-        return res.sendFile(f[0]);
-    });
+    const f = await fileModel.get(reqFile);
+    if (f.length !== 1)
+        return res.status(404).send("File not found");
+    return res.sendFile(f[0]);
 
 });
 

@@ -17,8 +17,8 @@ CREATE TABLE IF NOT EXISTS files (
 )`
 ]
 
-module.exports = _ => {
+module.exports = async _ => {
 	for (i of init)
-		dao.getInstance().executeUpdate(i).then().catch(console.error);
+		await dao.getInstance().executeUpdate(i).catch(console.error);
 	console.log("Database initialised")
 }

@@ -16,7 +16,7 @@ class DAO
         })
     }
 
-    async executeUpdate(query, param={})
+    executeUpdate(query, param={})
     {
         return new Promise((resolve, reject) => {
             this.conn.run(query, param, function(err) {
@@ -28,7 +28,7 @@ class DAO
         });
     }
 
-    async executeQuery(query, param={}) 
+    executeQuery(query, param={}) 
     {
         return new Promise((resolve, reject) => {
             this.conn.all(query, param, (err, rows) => {

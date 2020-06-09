@@ -30,7 +30,7 @@ router.get("/", util.verifyAuthToken, (req, res) => {
 })
 
 // register account
-router.post("/register", (req, res) => {
+router.post("/register", async (req, res) => {
     
     let user = req.body["username"];
     let pass = req.body["password"];
@@ -45,7 +45,9 @@ router.post("/register", (req, res) => {
     }
 
     // hash password with argon2 and add user to db
-    argon2.hash(pass, cfg.argon2cfg).then(async passHash => {
+    try
+    {
+        const passHash = await argon2.hash(pass, cfg.argon2cfg);
         try
         {
             console.log(await userModel.create(user, passHash));
@@ -61,18 +63,18 @@ router.post("/register", (req, res) => {
             ret.message = "Registration failed, user already exists";
             return res.json(ret);
         }
-    }).catch(err => {
+    }
+    catch (error)
+    {
         ret.success = false;
         ret.message = "Something went wrong...";
         return res.json(ret);
-    });
-
-
+    }
 
 });
 
 // login and return auth token
-router.post("/login", (req, res) => {
+router.post("/login", async (req, res) => {
     
     let user = req.body["username"];
     let pass = req.body["password"];
@@ -80,11 +82,14 @@ router.post("/login", (req, res) => {
     let ret = util.createResponseObj("success", "user", "token");
 
     // find user with entered username
-    userModel.get(user).then(async u => {
-        if (u.length !== 1)
+    try
+    {
+        const userRet = await userModel.get(user);
+
+        if (userRet.length !== 1)
             throw new Error();
 
-        let passHash = u[0].hash;
+        let passHash = userRet[0].hash;
 
         // verify hash of provided password against hash in db
         if (!await argon2.verify(passHash, pass, cfg.argon2cfg))
@@ -92,7 +97,7 @@ router.post("/login", (req, res) => {
 
         // create jwt token for user to receive and auth with
         jwt.sign(
-            { "user": user }, 
+            { user }, 
             keys.keys.private, 
             { algorithm: "RS256", expiresIn: cfg.jwtTokenTime }, 
             (err, token) => {
@@ -105,11 +110,12 @@ router.post("/login", (req, res) => {
                 return res.json(ret);
             }
         );
-
-    }).catch(err => {
+    }
+    catch (error)
+    {
         ret.success = false;
         return res.json(ret);
-    });
+    }
 
 });
 

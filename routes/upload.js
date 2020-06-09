@@ -25,26 +25,33 @@ const upload = multer({
 }).single("file");
 
 // handles upload of a single file
-router.post("/", util.verifyAuthToken, (req, res) => {
+router.post("/", util.verifyAuthToken, async (req, res) => {
 	
 	let ret = util.createResponseObj("success", "download");
-	
-	upload(req, res, err => {
-		if (err)
-		{
-			ret.success = false;
-			ret.download = `Error: ${err.message}`
-			return res.json(ret);
-		}
 
-		fileModel.create(req.file.filename, req.file.originalname, res.locals.authenticated ? res.locals.decoded.user : null);
+	try
+	{
+		await new Promise((resolve, reject) => {
+			upload(req, res, err => {
+				if (err) reject(err);
+				resolve();
+			});
+		});
+
+		await fileModel.create(req.file.filename, req.file.originalname, res.locals.authenticated ? res.locals.decoded.user : null);
 
 		ret.success = true;
 		ret.download = `${cfg.downloadRoute}${req.file.filename}`;
 		return res.json(ret);
 
-	});
-	
+	}
+	catch (error)
+	{
+		ret.success = false;
+		ret.download = `Error: ${err.message}`
+		return res.json(ret);
+	}
+
 });
 
 module.exports = router;
