@@ -14,8 +14,6 @@ for (let i of types)
         param.method = i;
         param.url = url;
 
-        console.log(param);
-        
         return axios(param);
     };
 }
