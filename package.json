@@ -11,6 +11,8 @@
   "author": "lolepopie",
   "license": "MIT",
   "dependencies": {
+    "@types/express": "^4.17.6",
+    "@types/multer": "^1.4.3",
     "@types/node": "^14.0.14",
     "argon2": "^0.26.1",
     "cors": "^2.8.5",

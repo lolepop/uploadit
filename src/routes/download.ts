@@ -1,9 +1,9 @@
-const express = require("express");
+import express = require("express");
 
-const cfg = require("../config");
-const util = require("../lib/util");
+import cfg = require("../config");
+import util = require("../lib/util");
 
-const fileModel = require("../models/file");
+import fileModel = require("../models/file");
 
 const router = express.Router();
 

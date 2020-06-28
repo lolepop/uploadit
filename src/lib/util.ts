@@ -1,12 +1,15 @@
+import { IGenericResponse } from "../routes/types/response";
+
 const jwt = require("jsonwebtoken");
 const keys = require("../lib/keys");
 
-function createResponseObj()
+export function createResponseObj<T>(...args: string[]): T
 {
-    return new Map(Array.from(arguments).map(i => [i.key, null]));
+    // return new Map(Array.from(args).map(i => [i, null]));
+    return args.reduce((acc: T, k: string, i: number) => (acc[k] = null, acc), {} as T);
 }
 
-const verifyAuthToken = (req, res, next) => {
+export const verifyAuthToken = (req, res, next) => {
     res.locals.authenticated = false;
 
     let authHeader = req.header("authorization");
@@ -30,4 +33,4 @@ const verifyAuthToken = (req, res, next) => {
     return next();
 };
 
-module.exports = { createResponseObj, verifyAuthToken };
+// module.exports = { createResponseObj, verifyAuthToken };

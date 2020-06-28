@@ -1,11 +1,12 @@
-const express = require("express");
-const multer = require("multer");
-const nanoid = require("nanoid");
+import express = require("express");
+import multer = require("multer");
+import nanoid = require("nanoid");
 
-const cfg = require("../config");
-const util = require("../lib/util");
+import cfg = require("../config");
+import util = require("../lib/util");
 
-const fileModel = require("../models/file");
+import fileModel = require("../models/file");
+import { IDownloadResponse } from "./types/response";
 
 const router = express.Router();
 
@@ -24,10 +25,14 @@ const upload = multer({
 	limits: { fileSize: cfg.multerSettings.maxSize }
 }).single("file");
 
+interface UploadFile extends express.Request
+{
+	file: any
+}
+
 // handles upload of a single file
-router.post("/", util.verifyAuthToken, async (req, res) => {
-	
-	let ret = util.createResponseObj("success", "download");
+router.post("/", util.verifyAuthToken, async (req: UploadFile, res) => {
+	let ret = util.createResponseObj<IDownloadResponse>("success", "download");
 
 	try
 	{
@@ -48,7 +53,7 @@ router.post("/", util.verifyAuthToken, async (req, res) => {
 	catch (error)
 	{
 		ret.success = false;
-		ret.download = `Error: ${err.message}`
+		ret.download = `Error: ${error.message}`
 		return res.json(ret);
 	}
 

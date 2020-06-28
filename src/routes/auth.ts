@@ -1,19 +1,22 @@
-const express = require("express");
-const jwt = require("jsonwebtoken");
-const argon2 = require("argon2");
+import express = require("express");
+import jwt = require("jsonwebtoken");
+import argon2 = require("argon2");
 
-const cfg = require("../config");
-const keys = require("../lib/keys");
-const util = require("../lib/util");
+import cfg = require("../config");
+import keys = require("../lib/keys");
+import util = require("../lib/util");
 
-const userModel = require("../models/user");
+import userModel = require("../models/user");
+import { LoginToken } from "./types/request";
+import { IAuthResponse, IMessageResponse } from "./types/response";
 
 const router = express.Router();
 
 // verify auth token and get user info
 router.get("/", util.verifyAuthToken, (req, res) => {
 	
-	let ret = util.createResponseObj("success", "user", "token");
+	// let ret = util.createResponseObj("success", "user", "token");
+	let ret = util.createResponseObj<IAuthResponse>("success", "user", "token");
 	
     if (res.locals.authenticated)
 	{
@@ -30,12 +33,12 @@ router.get("/", util.verifyAuthToken, (req, res) => {
 })
 
 // register account
-router.post("/register", async (req, res) => {
+router.post("/register", async (req: express.Request<{}, {}, LoginToken>, res) => {
     
-    let user = req.body["username"];
-    let pass = req.body["password"];
+    let user = req.body.username;
+    let pass = req.body.username;
     
-    let ret = util.createResponseObj("success", "message");
+    let ret = util.createResponseObj<IMessageResponse>("success", "message");
 
     if (!user || !pass)
     {
@@ -74,12 +77,12 @@ router.post("/register", async (req, res) => {
 });
 
 // login and return auth token
-router.post("/login", async (req, res) => {
+router.post("/login", async (req: express.Request<{}, {}, LoginToken>, res) => {
     
-    let user = req.body["username"];
-    let pass = req.body["password"];
+    let user = req.body.username;
+    let pass = req.body.password;
 
-    let ret = util.createResponseObj("success", "user", "token");
+    let ret = util.createResponseObj<IAuthResponse>("success", "user", "token");
 
     // find user with entered username
     try
