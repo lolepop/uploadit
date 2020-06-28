@@ -1,10 +1,9 @@
 const argon2 = require("argon2");
 
-
 module.exports = {
     port: 8000,
     jwtTokenTime: "24h",
-    databaseFile: "uploadDB.db",
+    databaseFile: `${__dirname}/uploadDB.db`,
     downloadRoute: "/d/",
     multerSettings: {
         uploadDir: `${__dirname}/upload/`,
