@@ -83,7 +83,7 @@ router.post("/login", async (req: express.Request<{}, {}, LoginToken>, res) => {
     let pass = req.body.password;
 
     let ret = util.createResponseObj<IAuthResponse>("success", "user", "token");
-
+    
     // find user with entered username
     try
     {

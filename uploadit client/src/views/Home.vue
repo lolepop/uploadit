@@ -17,11 +17,13 @@
 
 <script>
 import axios from "axios";
+import { mapMutations } from 'vuex';
 
 import store from '@/store/index';
 import UploadItem from "@/components/UploadItem";
 
-import authFetch from "@/libs/util";
+import api from "@/libs/api";
+// import authFetch from "@/libs/axiosAuth";
 
 const CancelToken = axios.CancelToken;
 
@@ -31,8 +33,15 @@ export default {
         UploadItem
     },
     methods: {
-        uploadFile() {
-            store.commit("addUploadQueue", {
+        ...mapMutations([
+            "addUploadQueue"
+        ]),
+        mutateUploadQueue(k, v) {
+            console.log(k, v);
+            store.commit("mutateUploadQueue", { k, v });
+        },
+        async uploadFile() {
+            this.addUploadQueue({
                 name: this.file.name,
                 progress: 0,
                 status: null,
@@ -41,30 +50,61 @@ export default {
             });
 
             let currFileIndex = store.state.uploadQueue.length - 1;
+            const mutateCurrent = v => this.mutateUploadQueue(currFileIndex, v);
 
             // check local filesize against limits before sending
             if (this.file.size > store.state.limits.size)
             {
-                store.commit("mutateUploadQueue", { k: currFileIndex, v: { status: false, message: "File is too large" }});
+                mutateCurrent({
+                    status: false,
+                    message: "File is too large"
+                });
+                // store.commit("mutateUploadQueue", { k: currFileIndex, v: { status: false, message: "File is too large" }});
                 return;
             }
 
             let formData = new FormData();
             formData.append('file', this.file);
 
-            authFetch.post(
-                `${store.state.apiEndpoint}/api/upload/`,
-                { 
-                    data: formData,
-                    onUploadProgress: progressEvent => store.commit("mutateUploadQueue", { k: currFileIndex, v: { progress: progressEvent.loaded * 100 / progressEvent.total } }),
-                    cancelToken: new CancelToken(c => store.commit("mutateUploadQueue", { k: currFileIndex, v: { cancel: c } }))
-                },
-                { "Content-Type": "multipart/form-data" }
-            ).then(res => {
-                store.commit("mutateUploadQueue", { k: currFileIndex, v: { status: res.data.success, message: res.data.download }});
-            }).catch(err => {
-                store.commit("mutateUploadQueue", { k: currFileIndex, v: { status: false, message: err.response }});
-            });
+            try
+            {
+                const res = await api.upload(
+                    formData,
+                    progressEvent => mutateCurrent({
+                        progress: progressEvent.loaded * 100 / progressEvent.total
+                    }),
+                    new CancelToken(c => mutateCurrent({ cancel: c }))
+                );
+
+                mutateCurrent({
+                    status: res.success,
+                    message: res.download
+                });
+                // store.commit("mutateUploadQueue", { k: currFileIndex, v: { status: res.data.success, message: res.data.download }});
+            }
+            catch (err)
+            {
+                console.log(err);
+                mutateCurrent({
+                    status: false,
+                    message: err.response
+                });
+                // store.commit("mutateUploadQueue", { k: currFileIndex, v: { status: false, message: err.response }});
+            }
+
+            // authFetch.post(
+            //     `${process.env.VUE_APP_APIENDPOINT}/api/upload/`,
+            //     { 
+            //         data: formData,
+            //         onUploadProgress: progressEvent => store.commit("mutateUploadQueue", { k: currFileIndex, v: { progress: progressEvent.loaded * 100 / progressEvent.total } }),
+            //         cancelToken: new CancelToken(c => store.commit("mutateUploadQueue", { k: currFileIndex, v: { cancel: c } }))
+            //     },
+            //     { "Content-Type": "multipart/form-data" }
+            // ).then(res => {
+            //     store.commit("mutateUploadQueue", { k: currFileIndex, v: { status: res.data.success, message: res.data.download }});
+            // }).catch(err => {
+            //     store.commit("mutateUploadQueue", { k: currFileIndex, v: { status: false, message: err.response }});
+            // });
             
 
         }

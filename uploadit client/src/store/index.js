@@ -7,7 +7,6 @@ export default new Vuex.Store({
     state: {
         loginInfo: "",
         uploadQueue: [],
-        apiEndpoint: "",
         limits: {}
     },
     mutations: {
@@ -23,9 +22,6 @@ export default new Vuex.Store({
         },
         cancelUpload(state, index) {
             state.uploadQueue[index]["cancel"]();
-        },
-        setApiEndpoint(state, apiEndpoint) {
-            state.apiEndpoint = apiEndpoint;
         },
         setLimits(state, limits) {
             state.limits = limits;

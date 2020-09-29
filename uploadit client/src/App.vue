@@ -7,8 +7,9 @@
 
     <section class="hero is-dark is-fullheight">
         <div class="hero-head">
-            <NoUser v-if="!$store.state.loginInfo" />
-            <LoggedIn v-else />
+            <TopBar />
+            <!-- <NoUser v-if="!$store.state.loginInfo" />
+            <LoggedIn v-else /> -->
         </div>
         <div class="hero-body">
             <router-view/>
@@ -19,40 +20,32 @@
 </template>
 
 <script>
-import axios from "axios";
 import Cookies from "js-cookie";
 
 import store from '@/store/index';
-import NoUser from "@/components/NoUser.vue";
-import LoggedIn from "@/components/LoggedIn.vue";
-import authFetch from "@/libs/util";
-
-store.commit("setApiEndpoint", process.env.NODE_ENV === "development" ? "http://localhost:8000" : "");
-
-axios.get(`${store.state.apiEndpoint}/api/limits/`).then(res => {
-    store.commit("setLimits", res.data);
-    console.log(res.data.size, store.state.limits.size);
-});
-
-let jwtToken = Cookies.get("JWT");
-if (jwtToken)
-{
-    authFetch.get(`${store.state.apiEndpoint}/api/auth/`).then(res => {
-        if (res.data.success)
-            store.commit("setLoginInfo", res.data.user);
-        else
-            Cookies.remove("JWT");
-    });
-}
-
-// store.commit("setLoginInfo", "ajksdlkjasdlk");
-// console.log(store.state.loginInfo);
+import TopBar from "@/components/TopBar.vue";
+import api from "@/libs/api";
 
 export default {
     name: "App",
+    async mounted() {
+        // load limits from api
+        const limits = await api.getApiLimits();
+        store.commit("setLimits", limits);
+
+        // check if login token is still valid
+        let jwtToken = Cookies.get("JWT");
+        if (jwtToken)
+        {
+            const res = await api.validateToken();
+            if (res.success)
+                store.commit("setLoginInfo", res.user);
+            else
+                Cookies.remove("JWT");
+        }
+    },
     components: {
-        NoUser,
-        LoggedIn
+        TopBar
     }
 };
 </script>

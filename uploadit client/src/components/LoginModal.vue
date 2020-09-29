@@ -37,10 +37,8 @@
 <script>
 // import axios from "axios";
 import Cookies from "js-cookie";
-import axios from "axios";
 
 import store from '@/store/index';
-import authFetch from "@/libs/util";
 
 export default {
     name: "LoginModal",
@@ -49,22 +47,17 @@ export default {
         {
             try
             {
-                const res = await authFetch.post(`${store.state.apiEndpoint}/api/auth/login`, {
-                    data: {
-                        username: this.username,
-                        password: this.password
-                    }
-                });
+                const res = await api.login(this.username, this.password);
 
-                if (res.data.success)
+                if (res.success)
                 {
-                    store.commit("setLoginInfo", res.data.user);
-                    Cookies.set("JWT", res.data.token);
+                    store.commit("setLoginInfo", res.user);
+                    Cookies.set("JWT", res.token);
                     this.$emit('close');
                 }
                 else
                 {
-                    console.log(res.data);
+                    console.log(res);
                 }
 
             }
@@ -79,15 +72,12 @@ export default {
             {
                 try
                 {
-                    const regRes = await axios.post(`${store.state.apiEndpoint}/api/auth/register`, {
-                        username: this.username,
-                        password: this.password
-                    });
+                    const regRes = await api.register(this.username, this.password);
 
-                    if (regRes.data.success)
+                    if (regRes.success)
                         await this.handleLogin();
                     else
-                        console.log(regRes.data.message);
+                        console.log(regRes.message);
 
                 }
                 catch (error)

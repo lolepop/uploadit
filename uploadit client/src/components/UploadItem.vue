@@ -23,7 +23,7 @@
                         :show-value="true"
                     />
                     <span v-else-if="props.row.status">
-                        <a :href="$store.state.apiEndpoint + props.row.message">Download</a>
+                        <a :href="endpoint + props.row.message">Download</a>
                     </span>
                     <span v-else>
                         {{ props.row.message }}
@@ -41,7 +41,12 @@
 
 export default {
     name: "UploadItem",
-    props: ["shouldPaginate"]
+    props: ["shouldPaginate"],
+    data() {
+        return {
+            endpoint: process.env.VUE_APP_APIENDPOINT
+        }
+    }
 };
 </script>
 
