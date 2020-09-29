@@ -1,6 +1,7 @@
 import express = require("express");
 import multer = require("multer");
 import nanoid = require("nanoid");
+import fs = require("fs");
 
 import cfg = require("../config");
 import util = require("../lib/util");
@@ -15,6 +16,16 @@ const storage = multer.diskStorage({
 	filename: function(req, file, cb) {
 		var origName = file.originalname.split(".");
 		var newName = nanoid(5) + Date.now() + (origName.length > 1 ? "." + origName[origName.length-1] : "");
+
+		req.on('aborted', () => {
+			file.stream.on('end', () => {
+				fs.unlink(cfg.multerSettings.uploadDir + newName, err => {
+					if (err)
+						throw err;
+				});
+			});
+			file.stream.emit('end');
+		})
 
 		cb(null, newName);
 	},

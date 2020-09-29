@@ -89,10 +89,10 @@ router.post("/login", async (req: express.Request<{}, {}, LoginToken>, res) => {
     {
         const userRet = await userModel.get(user);
 
-        if (userRet.length !== 1)
+        if (!userRet)
             throw new Error();
 
-        let passHash = userRet[0].hash;
+        let passHash = userRet.hash;
 
         // verify hash of provided password against hash in db
         if (!await argon2.verify(passHash, pass, cfg.argon2cfg))

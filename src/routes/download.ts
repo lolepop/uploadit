@@ -16,9 +16,9 @@ router.get("/:filename", async (req, res, next) => {
     const f = await fileModel.get(reqFile);
     console.log(f)
     
-    if (f.length !== 1)
+    if (!f)
         return res.status(404).send("File not found");
-    return res.sendFile(cfg.multerSettings.uploadDir + f[0].filename);
+    return res.sendFile(cfg.multerSettings.uploadDir + f.filename);
 
 });
 

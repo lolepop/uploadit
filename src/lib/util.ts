@@ -9,6 +9,11 @@ export function createResponseObj<T>(...args: string[]): T
     return args.reduce((acc: T, k: string, i: number) => (acc[k] = null, acc), {} as T);
 }
 
+export function singleReturn<T>(arr: any[]): T
+{
+    return (arr[0] ?? {}) as T
+}
+
 export const verifyAuthToken = (req, res, next) => {
     res.locals.authenticated = false;
 

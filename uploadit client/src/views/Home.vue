@@ -59,7 +59,6 @@ export default {
                     status: false,
                     message: "File is too large"
                 });
-                // store.commit("mutateUploadQueue", { k: currFileIndex, v: { status: false, message: "File is too large" }});
                 return;
             }
 
@@ -80,7 +79,6 @@ export default {
                     status: res.success,
                     message: res.download
                 });
-                // store.commit("mutateUploadQueue", { k: currFileIndex, v: { status: res.data.success, message: res.data.download }});
             }
             catch (err)
             {
@@ -89,23 +87,7 @@ export default {
                     status: false,
                     message: err.response
                 });
-                // store.commit("mutateUploadQueue", { k: currFileIndex, v: { status: false, message: err.response }});
             }
-
-            // authFetch.post(
-            //     `${process.env.VUE_APP_APIENDPOINT}/api/upload/`,
-            //     { 
-            //         data: formData,
-            //         onUploadProgress: progressEvent => store.commit("mutateUploadQueue", { k: currFileIndex, v: { progress: progressEvent.loaded * 100 / progressEvent.total } }),
-            //         cancelToken: new CancelToken(c => store.commit("mutateUploadQueue", { k: currFileIndex, v: { cancel: c } }))
-            //     },
-            //     { "Content-Type": "multipart/form-data" }
-            // ).then(res => {
-            //     store.commit("mutateUploadQueue", { k: currFileIndex, v: { status: res.data.success, message: res.data.download }});
-            // }).catch(err => {
-            //     store.commit("mutateUploadQueue", { k: currFileIndex, v: { status: false, message: err.response }});
-            // });
-            
 
         }
     },
